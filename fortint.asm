@@ -7,10 +7,10 @@ global _start
 %define rstack r14
 %define here r15
 
-%define link 0 ; Указатель на предыдущее слово отсутствует
+%define link 0 
 
 %macro native 3
-; %1 %2 %3
+
 section .data
 
 w_%2:
@@ -30,14 +30,14 @@ native %1, %2, 0
 %endmacro
 
 %macro colon 3
-; %1 %2 %3
+
 w_%2:
     dq link ; Указатель на предыдущее слово
     %define link w_%2
     db %1, 0 ; Имя слова
     db %3 ; Флаги
 
-    dq docol ; Адрес docol - 1 уровень косвенности
+    dq docol 
 %endmacro
 
 %macro colon 2
@@ -45,13 +45,12 @@ colon %1, %2, 0
 %endmacro
 
 section .data
-res1: db 'Good', 0
-res2: db 'Not good', 0
+
+
 res3: db 'Стек возврата для colon команд переполнен, слишком большая вложенность команд.', 0
 res4: db 'Введенная последовательность символов не является числом или командой', 0
 old_rsp: dq 0
-; Компилятор:
-state: db 0 ; Режим (компиляция / интерпретация)
+state: db 0 ; состояние (компиляция / интерпретация)
 last_word: dq 0 ; Адрес последнего определенного слова
 
 program_stub: dq 0
@@ -61,7 +60,7 @@ xt_interpreter: dq .interpreter
 section .text
 
 interpreter_loop:
-	; if state != 0
+
 	xor rax, rax
 	mov al, [state]
 	test al, al
@@ -69,7 +68,6 @@ interpreter_loop:
 
 
 	call read_word
-
 
 
 	mov rdi, rax
@@ -84,18 +82,13 @@ interpreter_loop:
 	.found:
 		mov rdi, rax
 		call cfa
-		mov qword[program_stub], rax
+		mov [program_stub], rax
 		mov pc, program_stub
 
-		; debug
-		;mov rdi, res1
-		;call print_string
-		;call print_newline
-
-		jmp next ; +
+		jmp next 
 
 	.not_found:
-		; if [rdi] - это число
+
 		call parse_int
 		test rdx, rdx
 		jnz .number
@@ -104,33 +97,19 @@ interpreter_loop:
 		.number:
 			push rax
 
-		; debug
-		;mov rdi, res1
-		;call print_string
-		;call print_newline
 
 		jmp interpreter_loop
 
 		.not_number:
-		mov rdi, res4
-		call print_string
-		call print_newline
-		jmp interpreter_loop
+			mov rdi, res4
+			call print_string
+			call print_newline
+			jmp interpreter_loop
 
 	
 
 compiler_loop:
-	; debug
-		mov rdi, res1
-		call print_string
-		call print_newline
-		xor rdi, rdi
-		mov dil, [state]
-		call print_int
-		call print_newline
-
 	call read_word
-
 
 
 	mov rdi, rax
@@ -186,26 +165,30 @@ compiler_loop:
 
 		.number:
 			; if пред. слово было [branch]
+
 			xor rdi, rdi
 			mov dil, [state]
 			cmp dil, 2
-			jnz .else
+			mov byte[state], 1
+			jnz .then
 			jz .true
 
-			.else:
+			.then:
+
 				mov qword[here], xt_lit
 				add here, 8
 			.true:
+
 			mov qword[here], rax
 			add here, 8
 
 		jmp compiler_loop
 
 		.not_number:
-		mov rdi, res4
-		call print_string
-		call print_newline
-		jmp compiler_loop
+			mov rdi, res4
+			call print_string
+			call print_newline
+			jmp compiler_loop
 
 
 	

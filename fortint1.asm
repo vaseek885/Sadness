@@ -7,10 +7,10 @@ global _start
 %define rstack r14
 %define here r15
 
-%define link 0 ; Указатель на предыдущее слово отсутствует
+%define link 0 
 
 %macro native 3
-; %1 %2 %3
+
 section .data
 
 w_%2:
@@ -30,14 +30,14 @@ native %1, %2, 0
 %endmacro
 
 %macro colon 3
-; %1 %2 %3
+
 w_%2:
     dq link ; Указатель на предыдущее слово
     %define link w_%2
     db %1, 0 ; Имя слова
     db %3 ; Флаги
 
-    dq docol ; Адрес docol - 1 уровень косвенности
+    dq docol 
 %endmacro
 
 %macro colon 2
@@ -47,7 +47,7 @@ colon %1, %2, 0
 section .data
 res1: db 'Good', 0
 res2: db 'Not good', 0
-res3: db 'Fuck', 0
+
 res4: db 'Введенная последовательность символов не является числом или командой', 0
 old_rsp: dq 0
 state: dq 0 ; Режим (компиляция / интерпретация)
@@ -107,32 +107,11 @@ interpreter_loop:
 		mov qword[program_stub], rax
 		mov pc, program_stub
 
-		; debug
-		push rdi
-		mov rdi, res3
-		call print_string
-		mov rdi, res3
-		call print_string
-		mov rdi, res3
-		call print_string
-		call print_newline
-		pop rdi
 
-		jmp next ; +
+		jmp next 
 
 	.not_found:
-		; if [rdi] - это число
-
-		;debug
-		push rdi
-		mov rdi, res2
-		call print_string
-		mov rdi, res3
-		call print_string
-		mov rdi, res3
-		call print_string
-		call print_newline
-		pop rdi
+		;
 
 		call parse_int
 		test rdx, rdx
