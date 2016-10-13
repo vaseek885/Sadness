@@ -44,9 +44,11 @@ w_%2:
 colon %1, %2, 0
 %endmacro
 
+
+
 section .data
 
-
+numvars: db 0
 str3: db 'Стек возврата для colon команд переполнен, слишком большая вложенность команд.', 0
 str4: db 'Введенная последовательность символов не является числом или командой', 0
 old_rsp: dq 0
@@ -82,10 +84,27 @@ interpreter_loop:
 	.found:
 		mov rdi, rax
 		call cfa
+
+		xor rdi, rdi
+		mov dil, [rax - 1]
+		cmp dil, 4 
+		jz .var
+
+
+		mov rdi, rax
+		call cfa
 		mov [program_stub], rax
 		mov pc, program_stub
 
 		jmp next 
+	.var:
+		push rax
+		call read_word
+		mov rdi, rax
+		call parse_int
+		mov rdi, rax
+		pop rax
+		mov qword[rax], rdi
 
 	.not_found:
 
@@ -224,6 +243,38 @@ native 'quit', quit
 	mov rax, 60
 	xor rdi, rdi
 	syscall
+
+native 'var', var
+	mov rax, [last_word]
+	mov [here], rax
+
+	mov qword[last_word], here
+
+	add here, 8
+
+	call read_word
+	mov rdi, rax
+	mov rsi, here
+
+	add here, rdx
+	inc here
+
+	push rdx
+	call string_copy
+	pop rdx
+
+	mov byte[here], 0x00
+	inc here
+	lea rax, [bss_buf + numvars] 
+	mov [here], rax
+
+	add here, 8
+	mov byte[state], 4
+	jmp next
+
+
+	
+
 native '.S', print_stack
 	mov rax, [old_rsp]
 	cmp rax, rsp 
