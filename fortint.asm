@@ -168,14 +168,14 @@ compiler_loop:
 			mov dil, [state]
 			cmp dil, 2
 			mov byte[state], 1
-			jnz .then
-			jz .true
+			jnz .else
+			jz .than
 
-			.then:
+			.else:
 
 				mov qword[here], xt_lit
 				add here, 8
-			.true:
+			.than:
 
 			mov qword[here], rax
 			add here, 8
