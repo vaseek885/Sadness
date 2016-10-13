@@ -149,9 +149,10 @@ compiler_loop:
 			jnz .not_br
 			.br:
 				mov byte[state], 2
-				jmp сompiler_loop
+				jmp nextit
 			.not_br:
 				mov byte[state], 1
+			.nextit:
 				jmp compiler_loop
 
 	.not_found:
@@ -557,7 +558,7 @@ cfa:
 section .bss
 bss_buf resb 65536 ; Пользовательская память
 bss_stack resb 2048 ; Стек адресов возврата
-bss_vocabulary resb 65536 ; Словарь
+bss_dictionary resb 65536 ; Словарь
 
 
 
@@ -565,7 +566,7 @@ section .text
 _start:
 mov [old_rsp], rsp
 lea rstack, [bss_stack+2040]
-mov here, bss_vocabulary
+mov here, bss_dictionary
 
 mov byte[state], 0x00
 mov qword[last_word], link
