@@ -200,11 +200,11 @@ colon 'double', double
     dq xt_exit
 
 colon 'or', log_or
-    dq xt_logical_not
+    dq xt_log_not
     dq xt_swap
-    dq xt_logical_not
-    dq xt_logical_and
-    dq xt_logical_not
+    dq xt_log_not
+    dq xt_log_and
+    dq xt_log_not
     dq xt_exit
 
 colon '>', greater
@@ -381,7 +381,7 @@ native 'swap', swap
 	push rdx
 	jmp next
 
-native 'dup', duplication
+native 'dup', dup
     push qword[rsp]
     jmp next
 
