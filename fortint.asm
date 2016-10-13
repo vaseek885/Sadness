@@ -47,8 +47,8 @@ colon %1, %2, 0
 section .data
 
 
-res3: db 'Стек возврата для colon команд переполнен, слишком большая вложенность команд.', 0
-res4: db 'Введенная последовательность символов не является числом или командой', 0
+str3: db 'Стек возврата для colon команд переполнен, слишком большая вложенность команд.', 0
+str4: db 'Введенная последовательность символов не является числом или командой', 0
 old_rsp: dq 0
 state: db 0 ; состояние (компиляция / интерпретация)
 last_word: dq 0 ; Адрес последнего определенного слова
@@ -101,7 +101,7 @@ interpreter_loop:
 		jmp interpreter_loop
 
 		.not_number:
-			mov rdi, res4
+			mov rdi, str4
 			call print_string
 			call print_newline
 			jmp interpreter_loop
@@ -127,44 +127,41 @@ compiler_loop:
 
 		xor rdi, rdi
 		mov dil, [rax - 1]
-		cmp dil, 1 ; F == 1 => immediate
+		cmp dil, 1 ; флаг = 1 - immediate
 		jz .immediate
-		jnz .not_immediate
+		jnz .delayed
 
 		.immediate:
-			; only ( ; )
+
 			mov qword[program_stub], rax
 			mov pc, program_stub
 			jmp next
 
-		.not_immediate:
+		.delayed:
 			mov [here], rax
 			add here, 8
 
-			; if [rax-1] == [branch] ... (проверяем флаги)
+			
 			xor rdi, rdi
 			mov dil, [rax - 1]
-			cmp dil, 2 ; F == 2 => branch || branch0
+			cmp dil, 2 ; если флаг = 2 то предидущий оператор - либо branch либо branch0
 			jz .br
 			jnz .not_br
 			.br:
 				mov byte[state], 2
-				jmp .next_iter
+				jmp сompiler_loop
 			.not_br:
 				mov byte[state], 1
-
-			.next_iter:
-			jmp compiler_loop
+				jmp compiler_loop
 
 	.not_found:
-		; if [rdi] - это число
+		; может быть [rdi] - это число
 		call parse_int
 		test rdx, rdx
 		jnz .number
 		jz .not_number
 
 		.number:
-			; if пред. слово было [branch]
 
 			xor rdi, rdi
 			mov dil, [state]
@@ -185,7 +182,7 @@ compiler_loop:
 		jmp compiler_loop
 
 		.not_number:
-			mov rdi, res4
+			mov rdi, str4
 			call print_string
 			call print_newline
 			jmp compiler_loop
@@ -194,14 +191,14 @@ compiler_loop:
 	
 
 section .data
-; colon-слова:
+
 
 colon 'double', double
     dq xt_dup
     dq xt_plus
     dq xt_exit
 
-colon 'or', logical_or
+colon 'or', log_or
     dq xt_logical_not
     dq xt_swap
     dq xt_logical_not
@@ -215,7 +212,7 @@ colon '>', greater
     dq xt_exit
 
 section .text
-; Реализации:
+
 
 native 'exit', exit
 	mov pc, [rstack]
@@ -228,7 +225,7 @@ native 'quit', quit
 	syscall
 native '.S', print_stack
 	mov rax, [old_rsp]
-	cmp rax, rsp ; Stack is empty ?
+	cmp rax, rsp 
 	jz .exit
 
 	push rax
@@ -240,7 +237,7 @@ native '.S', print_stack
 	call print_char
 	pop rax
 
-	.iterate:
+	.looping:
 		sub rax, 8
 		mov rdi, [rax]
 
@@ -251,7 +248,7 @@ native '.S', print_stack
 		pop rax
 
 		cmp rax, rsp
-		jnz .iterate
+		jnz .looping
 
 	call print_newline
 
@@ -271,7 +268,7 @@ native '-', minus
 	push rdi
 	jmp next
 
-native '*', multi
+native '*', multiplication
 	pop rax
 	pop rdi
 	mul rdi
@@ -293,7 +290,7 @@ native '/', division
 
 	jmp next
 
-native '=', equals
+native '=', equality
 	pop rax
 	pop rdi
 
@@ -302,10 +299,10 @@ native '=', equals
 	jnz .false
 
 	.true:
-		push 1 ; 8 Byte
+		push 1 ; 
 		jmp .exit
 	.false:
-		push 0 ; 8 Byte
+		push 0 ; 
 		jmp .exit
 
 	.exit:
@@ -320,16 +317,16 @@ native '<', less
 	jl .less
 
 	.greater:
-		push 0 ; 8 Byte
+		push 0 
 		jmp .exit
 	.less:
-		push 1 ; 8 Byte
+		push 1 
 		jmp .exit
 
 	.exit:
 	jmp next
 
-native 'and', logical_and
+native 'and', log_and
 	pop rax
 	pop rdi
 
@@ -338,16 +335,16 @@ native 'and', logical_and
 	jz .false
 
 	.true:
-		push 1 ; 8 Byte
+		push 1 
 		jmp .exit
 	.false:
-		push 0 ; 8 Byte
+		push 0 
 		jmp .exit
 
 	.exit:
 	jmp next
 
-native 'not', logical_not
+native 'not', log_not
 	pop rax
 	not rax
 
@@ -356,10 +353,10 @@ native 'not', logical_not
 	jz .false
 
 	.true:
-		push 1 ; 8 Byte
+		push 1 
 		jmp .exit
 	.false:
-		push 0 ; 8 Byte
+		push 0 
 		jmp .exit
 
 	.exit:
@@ -383,7 +380,7 @@ native 'swap', swap
 	push rdx
 	jmp next
 
-native 'dup', dup
+native 'dup', duplication
     push qword[rsp]
     jmp next
 
@@ -399,7 +396,7 @@ native '.', dot
 
 native 'key', key
 	call read_char
-	push rax ; ax - 2 Bytes for char: [.... char]
+	push rax 
 	jmp next
 
 native 'emit', emit
@@ -422,19 +419,19 @@ native 'mem', mem
 	push bss_buf
 	jmp next
 
-native '!', write_date
+native '!', write_data
 	pop rax ; address
 	pop rdi ; data
-	mov qword[rax], rdi
+	mov [rax], rdi
 	jmp next
 
-native '@', read_date
+native '@', read_data
 	pop rax ; address
 	push qword[rax]
 	jmp next
 
 native ':', start_colon
-	; Прочитаем следующее слово из stdin
+
 	mov rax, [last_word]
 	mov [here], rax
 
@@ -460,32 +457,24 @@ native ':', start_colon
 
 	mov byte[state], 1
 
-	;debug
-		mov rax, [last_word]
-		add rax, 8
-		mov rdi, rax
-
-
-		call print_string
-		call print_newline
 	jmp next
 
-native ';', end_colon, 1 ; F = 1 - Immediate
+native ';', end_colon, 1 
 	mov byte[state], 0
 	mov qword[here], xt_exit
 	add here, 8
 	jmp next
 
-native 'lit', lit, 3 ; F = 3
+native 'lit', lit, 3 
 	push qword[pc]
 	add pc, 8
 	jmp next
 
-native 'branch', branch, 2 ; F = 2
+native 'branch', branch, 2
 	add pc, [pc]
 	jmp next
 
-native 'branch0', branch0, 2 ; F = 2
+native 'branch0', branch0, 2 
 	mov rax, [rsp]
 	test rax, rax
 	jnz .exit
@@ -499,7 +488,7 @@ next:
 	mov w, [w]
 	jmp [w]
 
-; Для colon-слов:
+
 docol:
 	sub rstack, 8
 	mov rax, bss_stack
@@ -510,27 +499,24 @@ docol:
 	mov pc, w
 	jmp next
 	.error:
-	mov rdi, res3
+	mov rdi, str3
 	call print_string
 	call print_newline
 	mov rax, 60
 	xor rdi, rdi
 	syscall
 
-; Дополнительные процедуры:
-find_word:
-	; rdi - указатель на имя искомой процедуры
-    ; rax - вернуть адрес слова, либо 0
-	; Начать проверять с link
 
-    ; mov byte[string_buf], rdi
-    ; mov rdi, string_buf
+find_word:
+	; rax - при успехе вернуть адрес слова, в противном случае 0
+	; rdi - указатель на имя искомой процедуры
+    
 
     lea r8, [last_word]
 
     .iterate:
-        ; r8 - текущее проверяемое слово
-        ; [r8] - следующее проверяемое слово
+        ; r8 - текущее слово
+        ; [r8] - следующее  слово
 
         mov rsi, r8
         add rsi, 8
@@ -542,14 +528,14 @@ find_word:
         pop rdi
 
         test rax, rax
-        jz .not_good
-        jnz .good
+        jz .different
+        jnz .same
 
-        .good:
+        .same:
             mov rax, r8
             ret
 
-        .not_good:
+        .different:
             mov r8, [r8]
             test r8, r8
             jnz .iterate
@@ -558,16 +544,13 @@ find_word:
             ret
 
 cfa:
-	; rdi - адрес w_...
-	; rax - будет xt_...
-
 	add rdi, 8
 
 	push rdi
 	call string_length
 	pop rdi
 
-	lea rax, [rdi + rax + 2] ;!? Ok?!
+	lea rax, [rdi + rax + 2] 
 
 	ret
 
