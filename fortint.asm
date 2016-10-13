@@ -230,7 +230,7 @@ native '.S', print_stack
 	jz .exit
 
 	push rax
-	mov rdi, '='
+	mov rdi, '-'
 	call print_char
 	mov rdi, '>'
 	call print_char
@@ -251,10 +251,10 @@ native '.S', print_stack
 		cmp rax, rsp
 		jnz .looping
 
-	call print_newline
+		call print_newline
 
 	.exit:
-	jmp next
+		jmp next
 
 native '+', plus
     pop rax
@@ -286,8 +286,8 @@ native '/', division
 	jns .more ; rax > 0 ?
 		not rdx
 	.more:
-	idiv rdi
-	push rax
+		idiv rdi
+		push rax
 
 	jmp next
 
@@ -307,7 +307,7 @@ native '=', equality
 		jmp .exit
 
 	.exit:
-	jmp next
+		jmp next
 
 native '<', less
 	pop rax
@@ -325,7 +325,7 @@ native '<', less
 		jmp .exit
 
 	.exit:
-	jmp next
+		jmp next
 
 native 'and', log_and
 	pop rax
@@ -343,7 +343,7 @@ native 'and', log_and
 		jmp .exit
 
 	.exit:
-	jmp next
+		jmp next
 
 native 'not', log_not
 	pop rax
@@ -361,7 +361,7 @@ native 'not', log_not
 		jmp .exit
 
 	.exit:
-	jmp next
+		jmp next
 
 native 'rot', rotation
 	pop rdi ; c
@@ -500,12 +500,12 @@ docol:
 	mov pc, w
 	jmp next
 	.error:
-	mov rdi, str3
-	call print_string
-	call print_newline
-	mov rax, 60
-	xor rdi, rdi
-	syscall
+		mov rdi, str3
+		call print_string
+		call print_newline
+		mov rax, 60
+		xor rdi, rdi
+		syscall
 
 
 find_word:
