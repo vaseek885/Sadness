@@ -303,8 +303,8 @@ native 'var', var
 
 var_exec:
 	add w, 8
-	mov rdi, [w]	
-	push rdi
+	mov w, [w]	
+	push [w]
 	jmp next
 
 	
