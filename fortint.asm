@@ -260,10 +260,15 @@ native 'var', var
 	
 	call read_word
 	mov rdi, rax
+	push rdi
+	call print_string
+	call print_newline
+	pop rdi
 	call parse_int
+
 	mov rdi , rax
 	call print_int
-	push rax
+	push rax					
 
 	mov rdi, [numvars] 
 	lea rdx, [bss_buf + rdi]
