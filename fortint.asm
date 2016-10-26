@@ -261,6 +261,8 @@ native 'var', var
 	call read_word
 	mov rdi, rax
 	call parse_int
+	mov rdi , rax
+	call print_int
 	push rax
 
 	mov rdi, [numvars] 
