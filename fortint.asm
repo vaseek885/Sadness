@@ -251,16 +251,27 @@ native 'var', var
 	call string_copy
 	pop rdx
 
+	mov rdi, str3
+	call print_string
+	call print_newline
+
 	mov byte[here], 0x00
 	inc here
 	mov qword[here], var_exec
 	add here, 8
 	mov byte[state], 0
 
+	mov rdi, str4
+	call print_string
+	call print_newline
+
 	call read_word
 	mov rdi, rax
 	call parse_int
 
+	mov rdi, str5
+	call print_string
+	call print_newline
 
 	mov rdi, [numvars] 
 	lea rdx, [bss_buf + rdi]
