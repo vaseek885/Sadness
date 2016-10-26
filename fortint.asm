@@ -267,6 +267,10 @@ native 'var', var
 
 	call read_word
 	mov rdi, rax
+	call print_string
+	call print_newline
+	mov rdi, rax
+
 	call parse_int
 
 	mov rdi, str5
