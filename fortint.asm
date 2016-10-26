@@ -304,7 +304,7 @@ native 'var', var
 var_exec:
 	add w, 8
 	mov w, [w]	
-	push [w]
+	push qword[w]
 	jmp next
 
 	
