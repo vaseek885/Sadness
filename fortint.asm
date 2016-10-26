@@ -258,31 +258,15 @@ native 'var', var
 	mov byte[state], 0
 
 	
-	call read_word
-	mov rdi, rax
-	push rdi
-	call print_string
-	call print_newline
-	pop rdi
-	call parse_int
-
-	mov rdi , rax
-	call print_int
-	push rax					
-
 	mov rdi, [numvars] 
 	lea rdx, [bss_buf + rdi]
 	add rdi, 8
 	mov [numvars], rdi
-	mov [rdx], rax
-	push rax
 
-	
+	pop rdi ; data
+	mov [rdx], rdi
 
 	mov [here], rdx
-
-	
-
 
 	add here, 8
 	
