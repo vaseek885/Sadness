@@ -263,8 +263,9 @@ native 'var', var
 
 
 	mov rdi, [numvars] 
-	mov [numvars], rdi + 8
 	lea rdx, [bss_buf + rdi]
+	add rdi, 8
+	mov [numvars], rdi
 	mov [rdx], rax
 	mov [here], rdx
 
