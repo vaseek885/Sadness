@@ -48,7 +48,7 @@ colon %1, %2, 0
 
 section .data
 
-numvars: db 0
+numvars: dq 0
 str3: db 'Стек возврата для colon команд переполнен, слишком большая вложенность команд.', 0
 str4: db 'Введенная последовательность символов не является числом или командой', 0
 str5: db 'Введенная последовательность символов - не переменная', 0
@@ -273,16 +273,34 @@ native 'var', var
 
 	call parse_int
 
-	mov rdi, str5
-	call print_string
-	call print_newline
+	mov rdi, str5;dbg
+	call print_string;dbg
+	call print_newline;dbg
 
 	mov rdi, [numvars] 
+	mov rdi, str5;dbg
+	call print_string;dbg
+	call print_newline;dbg
 	lea rdx, [bss_buf + rdi]
+	mov rdi, str5;dbg
+	call print_string;dbg
+	call print_newline;dbg
 	add rdi, 8
+	mov rdi, str5;dbg
+	call print_string;dbg
+	call print_newline;dbg
 	mov [numvars], rdi
+	mov rdi, str5;dbg
+	call print_string;dbg
+	call print_newline;dbg
 	mov [rdx], rax
+	mov rdi, str5;dbg
+	call print_string;dbg
+	call print_newline;dbg
 	mov [here], rdx
+	mov rdi, str5;dbg
+	call print_string;dbg
+	call print_newline;dbg
 
 
 	add here, 8
