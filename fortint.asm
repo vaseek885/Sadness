@@ -51,6 +51,7 @@ section .data
 numvars: db 0
 str3: db 'Стек возврата для colon команд переполнен, слишком большая вложенность команд.', 0
 str4: db 'Введенная последовательность символов не является числом или командой', 0
+str5: db 'Введенная последовательность символов - не переменная', 0
 old_rsp: dq 0
 state: db 0 ; состояние (компиляция / интерпретация)
 last_word: dq 0 ; Адрес последнего определенного слова
@@ -85,26 +86,11 @@ interpreter_loop:
 		mov rdi, rax
 		call cfa
 
-		xor rdi, rdi
-		mov dil, [rax - 1]
-		cmp dil, 4 
-		jz .var
-
-
-		mov rdi, rax
-		call cfa
 		mov [program_stub], rax
 		mov pc, program_stub
 
 		jmp next 
-	.var:
-		push rax
-		call read_word
-		mov rdi, rax
-		call parse_int
-		mov rdi, rax
-		pop rax
-		mov qword[rax], rdi
+
 
 	.not_found:
 
@@ -126,6 +112,8 @@ interpreter_loop:
 			jmp interpreter_loop
 
 	
+
+
 
 compiler_loop:
 	call read_word
@@ -163,7 +151,7 @@ compiler_loop:
 			
 			xor rdi, rdi
 			mov dil, [rax - 1]
-			cmp dil, 2 ; если флаг = 2 то предидущий оператор - либо branch либо branch0
+			cmp dil, 2 ; если флаг = 2 то предыдущий оператор - либо branch либо branch0
 			jz .br
 			jnz .not_br
 			.br:
@@ -265,13 +253,60 @@ native 'var', var
 
 	mov byte[here], 0x00
 	inc here
-	lea rax, [bss_buf + numvars] 
-	mov [here], rax
+	mov qword[here], var_exec
+	add here, 8
+	mov byte[state], 0
+
+	call read_word
+	mov rdi, rax
+	call parse_int
+
+
+	mov rdi, [numvars] 
+	mov [numvars], rdi + 8
+	lea rdx, [bss_buf + rdi]
+	mov [rdx], rax
+	mov [here], rdx
+
 
 	add here, 8
-	mov byte[state], 4
+	
 	jmp next
 
+	;;
+	; mov rax, [last_word]
+	; mov [here], rax
+
+	; mov qword[last_word], here
+
+	; add here, 8
+
+	; call read_word
+	; mov rdi, rax
+	; mov rsi, here
+
+	; add here, rdx
+	; inc here
+
+	; push rdx
+	; call string_copy
+	; pop rdx
+
+	; mov byte[here], 0x00 ; F
+	; inc here
+	; mov qword[here], docol
+	; add here, 8
+
+	; mov byte[state], 1
+
+	; jmp next
+	;;
+
+var_exec:
+	add w, 8
+	mov rdi, [w]	
+	push rdi
+	jmp next
 
 	
 
