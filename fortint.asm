@@ -257,105 +257,23 @@ native 'var', var
 	add here, 8
 	mov byte[state], 0
 
-	push rdi;dbg
-	push rax;dbg
-	push rdx;dbg
-	mov rdi, str4;dbg
-	call print_string;dbg
-	call print_newline;dbg
-	pop rdx;dbg
-	pop rax;dbg
-	pop rdi;dbg
-
-	call read_word
-	push rdi;dbg
-	push rax;dbg
-	push rdx;dbg
-	mov rdi, rax;dbg
-	call print_string;dbg
-	call print_newline;dbg
-	pop rdx;dbg
-	pop rax;dbg
-	pop rdi;dbg
 	
+	call read_word
 	mov rdi, rax
-
 	call parse_int
 
-	push rdi;dbg
-	push rax;dbg
-	push rdx;dbg
-	mov rdi, str5;dbg
-	call print_string;dbg
-	call print_newline;dbg
-	pop rdx;dbg
-	pop rax;dbg
-	pop rdi;dbg
-
-
 	mov rdi, [numvars] 
-
-	push rdi;dbg
-	push rax;dbg
-	push rdx;dbg
-	mov rdi, str4;dbg
-	call print_string;dbg
-	call print_newline;dbg
-	pop rdx;dbg
-	pop rax;dbg
-	pop rdi;dbg
-
-
 	lea rdx, [bss_buf + rdi]
 	add rdi, 8
-
-	push rdi;dbg
-	push rax;dbg
-	push rdx;dbg
-	mov rdi, str4;dbg
-	call print_string;dbg
-	call print_newline;dbg
-	pop rdx;dbg
-	pop rax;dbg
-	pop rdi;dbg
-
 	mov [numvars], rdi
-
-	push rdi;dbg
-	push rax;dbg
-	push rdx;dbg
-	mov rdi, str4;dbg
-	call print_string;dbg
-	call print_newline;dbg
-	pop rdx;dbg
-	pop rax;dbg
-	pop rdi;dbg
-
-
 	mov [rdx], rax
+	push rax
 
-	push rdi;dbg
-	push rax;dbg
-	push rdx;dbg
-	mov rdi, str4;dbg
-	call print_string;dbg
-	call print_newline;dbg
-	pop rdx;dbg
-	pop rax;dbg
-	pop rdi;dbg
-
+	
 
 	mov [here], rdx
 
-	push rdi;dbg
-	push rax;dbg
-	push rdx;dbg
-	mov rdi, str4;dbg
-	call print_string;dbg
-	call print_newline;dbg
-	pop rdx;dbg
-	pop rax;dbg
-	pop rdi;dbg
+	
 
 
 	add here, 8
