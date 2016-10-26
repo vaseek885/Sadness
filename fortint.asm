@@ -278,6 +278,8 @@ native 'var', var
 	pop rax;dbg
 	pop rdi;dbg
 	
+	mov rdi, rax
+
 	call parse_int
 
 	push rdi;dbg
